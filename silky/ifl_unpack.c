@@ -7,9 +7,9 @@ int main(int argc, char *argv[])
 {
 	char *p;
 	long pos;
-	FILE *ifl, *out;
 	char filename[17];
 	unsigned int count;
+	FILE *ifl, *out, *lst;
 	unsigned char buf[24];
 	unsigned char ifl_magic[] = {"\x49\x46\x4c\x53"};
 	unsigned long entry_offset, entry_size, entry_uncomp_size;
@@ -36,6 +36,8 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
+	lst = fopen("list.txt", "wb");
+
 	/*data_offset = read_uint32_le(&buf[4]);*/
 	count = read_uint32_le(&buf[8]);
 
@@ -44,6 +46,8 @@ int main(int argc, char *argv[])
 		memset(filename, '\0', 17);
 		fread(buf, 1, 24, ifl);
 		memcpy(filename, buf, 16);
+
+		fprintf(lst, "%s\n", filename);
 
 		entry_offset = read_uint32_le(&buf[16]);
 		entry_size = read_uint32_le(&buf[20]);
@@ -127,6 +131,7 @@ int main(int argc, char *argv[])
 		fclose(out);
 	}
 
+	fclose(lst);
 	fclose(ifl);
 	return 0;
 }
