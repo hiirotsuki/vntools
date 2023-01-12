@@ -8,6 +8,7 @@ Spot an issue? Feel like contributing? open a pull request!:-)
 # Supported engines
  - Cromwell: (.opk), unpacking only
  - Studio neko punch: unpacking only
+ - Studio-Sakura: unpacking only
  - Succubus: unpacking only
  - Silky's: (.IFL), unpacking and repacking
 
