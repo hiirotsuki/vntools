@@ -12,6 +12,7 @@ Spot an issue? Feel like contributing? open a pull request!:-)
  - Studio-Sakura: unpacking only
  - Succubus: unpacking only
  - Silky's: (.IFL), unpacking and repacking
+ - Carriere (.CGD) conversion to BMP only
 
 # License
  - everything is licensed under GPLv2 (and LGPLv2.1) or later unless otherwise specified
