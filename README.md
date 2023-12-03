@@ -1,5 +1,5 @@
 # Vntools
-utilities for working with visual novel assets written in clean, portable C89
+utilities for working with visual novel assets written in clean, portable ansi C (with 64-bit integers for some things, yay compiler extensions!)
 
 
 
