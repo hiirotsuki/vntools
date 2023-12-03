@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "readbytes.h"
+#include "readint.h"
 
 int main(int argc, char *argv[])
 {

@@ -36,10 +36,10 @@ int main(int argc, char *argv[])
 
 	/* data offset */
 	data_offset = (count * 24) + 12;
-	write_uint32_le(data_offset, ifl);
+	fwrite_uint32_le(data_offset, ifl);
 
 	/* file count */
-	write_uint32_le(count, ifl);
+	fwrite_uint32_le(count, ifl);
 
 	while(1)
 	{
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 		rewind(entry);
 
 		fwrite(filename, 1, 16, ifl);
-		write_uint32_le(data_offset, ifl);
+		fwrite_uint32_le(data_offset, ifl);
 
 		ifl_pos = ftell(ifl);
 
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 
 		fseek(ifl, ifl_pos, SEEK_SET);
 		data_offset += entry_size;
-		write_uint32_le(entry_size, ifl);
+		fwrite_uint32_le(entry_size, ifl);
 		fclose(entry);
 	}
 
