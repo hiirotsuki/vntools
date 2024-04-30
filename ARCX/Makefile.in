@@ -5,7 +5,7 @@ LDFLAGS ?=
 
 all: arcx_unpack
 
-arcx_unpack: arcx_unpack.c ../common/cp932.c ../common/cp932table.c ../common/dir.c
+arcx_unpack: arcx_unpack.c ../common/cp932.c ../common/cp932table.c ../common/win32compat.c ../common/dir.c
 	$(CC) $(CFLAGS) $(CFLAGS_INCLUDE) -I. $? -o $@ $(LDFLAGS)
 
 clean:
