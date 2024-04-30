@@ -14,6 +14,7 @@ Spot an issue? Feel like contributing? open a pull request!:-)
  - Silky's: (.IFL), unpacking and repacking
  - Carriere (.CGD) conversion to BMP only
  - BasiL (.MIF): unpacking only
+ - ARCX (.arc): unpacking, repacking not necessary, runs with loose files
 
 # License
  - everything is licensed under GPLv2 (and LGPLv2.1) or later unless otherwise specified

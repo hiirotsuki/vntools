@@ -1,0 +1,15 @@
+CC ?= gcc
+CFLAGS ?= -ansi -pedantic -Wall -Wextra
+CFLAGS_INCLUDE = -I../common/
+LDFLAGS ?=
+
+all: arcx_unpack
+
+arcx_unpack: arcx_unpack.c ../common/cp932.c ../common/cp932table.c ../common/dir.c
+	$(CC) $(CFLAGS) $(CFLAGS_INCLUDE) -I. $? -o $@ $(LDFLAGS)
+
+clean:
+	rm -f arcx_unpack.exe arcx_unpack *.o
+
+
+.PHONY: clean
