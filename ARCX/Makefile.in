@@ -1,15 +1,15 @@
-CC ?= gcc
+CC=@CC@
 CFLAGS ?= -ansi -pedantic -Wall -Wextra
 CFLAGS_INCLUDE = -I../common/
 LDFLAGS ?=
 
-all: cgd2bmp
+all: arcx_unpack
 
-cgd2bmp: cgd2bmp.c
+arcx_unpack: arcx_unpack.c ../common/cp932.c ../common/cp932table.c ../common/dir.c
 	$(CC) $(CFLAGS) $(CFLAGS_INCLUDE) -I. $? -o $@ $(LDFLAGS)
 
 clean:
-	rm -f cgd2bmp cgd2bmp.exe *.o
+	rm -f arcx_unpack.exe arcx_unpack *.o
 
 
 .PHONY: clean

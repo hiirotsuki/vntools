@@ -1,18 +1,18 @@
-CC ?= gcc
+CC=@CC@
 CFLAGS ?= -ansi -pedantic -Wall -Wextra
 CFLAGS_INCLUDE = -I../common/
 LDFLAGS ?=
 
-all: sm2mpx10_unpack ggp_decrypt
+all: ifl_unpack ifl_pack
 
-sm2mpx10_unpack: sm2mpx10_unpack.c
+ifl_unpack: ifl_unpack.c
 	$(CC) $(CFLAGS) $(CFLAGS_INCLUDE) -I. $? -o $@ $(LDFLAGS)
 
-ggp_decrypt: ggp_decrypt.c
+ifl_pack: ifl_pack.c
 	$(CC) $(CFLAGS) $(CFLAGS_INCLUDE) -I. $? -o $@ $(LDFLAGS)
 
 clean:
-	rm -f sm2mpx10_unpack sm2mpx10_unpack.exe ggp_decrypt ggp_decrypt.exe *.o
+	rm -f ifl_unpack ifl_unpack.exe ifl_pack ifl_pack.exe *.o
 
 
 .PHONY: clean

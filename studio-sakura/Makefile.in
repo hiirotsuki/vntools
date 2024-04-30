@@ -1,4 +1,4 @@
-CC ?= gcc
+CC=@CC@
 CFLAGS ?= -ansi -pedantic -Wall -Wextra
 CFLAGS_INCLUDE = -I../common/
 LDFLAGS ?=

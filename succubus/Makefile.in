@@ -1,15 +1,15 @@
-CC ?= gcc
+CC=@CC@
 CFLAGS ?= -ansi -pedantic -Wall -Wextra
 CFLAGS_INCLUDE = -I../common/
 LDFLAGS ?=
 
-all: arcx_unpack
+all: succubus_arc_unpack
 
-arcx_unpack: arcx_unpack.c ../common/cp932.c ../common/cp932table.c ../common/dir.c
+succubus_arc_unpack: succubus_arc_unpack.c
 	$(CC) $(CFLAGS) $(CFLAGS_INCLUDE) -I. $? -o $@ $(LDFLAGS)
 
 clean:
-	rm -f arcx_unpack.exe arcx_unpack *.o
+	rm -f succubus_arc_unpack succubus_arc_unpack.exe *.o
 
 
 .PHONY: clean

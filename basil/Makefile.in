@@ -1,18 +1,18 @@
-CC ?= gcc
+CC=@CC@
 CFLAGS ?= -ansi -pedantic -Wall -Wextra
 CFLAGS_INCLUDE = -I../common/
 LDFLAGS ?=
 
-all: opk_unpack opk_pack
+all: mif_unpack ng3_unpack
 
-opk_unpack: opk_unpack.c
+mif_unpack: mif_unpack.c
 	$(CC) $(CFLAGS) $(CFLAGS_INCLUDE) -I. $? -o $@ $(LDFLAGS)
 
-opk_pack: opk_pack.c
+ng3_unpack: ng3_unpack.c
 	$(CC) $(CFLAGS) $(CFLAGS_INCLUDE) -I. $? -o $@ $(LDFLAGS)
 
 clean:
-	rm -f opk_unpack opk_unpack.exe opk_pack opk_pack.exe *.o
+	rm -f mif_unpack mif_unpack.exe ng3_unpack ng3_unpack.exe *.o
 
 
 .PHONY: clean
