@@ -3,7 +3,7 @@
 #include <errno.h>
 
 #include "readint.h"
-#include "dir.h"
+#include "xmkdir.h"
 #include "cp932.h"
 #include "win32compat.h"
 
