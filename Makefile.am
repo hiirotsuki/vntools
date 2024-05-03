@@ -1,6 +1,7 @@
 bin_PROGRAMS = \
 	opk_pack \
 	opk_unpack \
+	cromwell_pak_unpack \
 	nekopunch_unpack \
 	arcx_unpack \
 	mif_unpack \
@@ -16,6 +17,8 @@ bin_PROGRAMS = \
 
 opk_pack_SOURCES = cromwell/opk_pack.c
 opk_unpack_SOURCES = cromwell/opk_unpack.c
+cromwell_pak_unpack_SOURCES = cromwell/pak_unpack.c
+cromwell_pak_unpack_LDADD = -lz
 
 nekopunch_unpack_SOURCES = nekopunch/nekopunch_unpack.c
 nekopunch_unpack_LDADD = lib/libcommon.a

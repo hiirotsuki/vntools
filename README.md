@@ -7,6 +7,7 @@ Spot an issue? Feel like contributing? open a pull request!:-)
 
 # Supported engines
  - Cromwell: (.opk), unpacking and packing
+ - Cromwell: (.pak), unpacking only
  - IkuraGDL: (.GGP, SM2MPX10 archives): GGP decryption, SM2MPX10 archive unpacking and packing
  - Studio neko punch: unpacking only
  - Studio-Sakura: unpacking only
