@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <direct.h>
 #include <stdio.h>
+#include <errno.h>
 
 #include "win32compat.h"
 
@@ -21,7 +22,17 @@ int win32_mkdir(const char *path)
 	wchar_t wpath[32767];
 	MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, 32767);
 
-	return _wmkdir(wpath);
+	if(!CreateDirectoryW(wpath, NULL))
+	{
+		DWORD err = GetLastError();
+		if(err == ERROR_ALREADY_EXISTS)
+			errno = EEXIST;
+		else if(err == ERROR_PATH_NOT_FOUND)
+			errno = ENOENT;
+		return -1;
+	}
+
+	return 0;
 }
 
 #else
