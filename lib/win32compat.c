@@ -35,6 +35,16 @@ int win32_mkdir(const char *path)
 	return 0;
 }
 
+char *win32_strchr(const char *s, int c)
+{
+	c = (unsigned char)c;
+
+	for(; *s != '\0' && *s != c; s++)
+		;
+
+	return *s == c ? (char *)s : NULL;
+}
+
 #else
 #ifdef __GNUC__
 __attribute__((unused))
