@@ -7,6 +7,7 @@
 
 #include "win32compat.h"
 
+#ifndef NOFILE
 FILE *win32_fopen(const char *path, const char *mode)
 {
 	wchar_t wpath[32767];
@@ -16,6 +17,91 @@ FILE *win32_fopen(const char *path, const char *mode)
 
 	return _wfopen(wpath, wmode);
 }
+#else
+void *win32_fopen(const char *path, const char *mode)
+{
+	int access, open_mode;
+
+	wchar_t wpath[32767];
+
+	MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, sizeof(wpath));
+	if(!lstrcmp(mode, "rb"))
+	{
+		open_mode = OPEN_EXISTING;
+		access = GENERIC_READ;
+	}
+	else if(!lstrcmp(mode, "wb"))
+	{
+		open_mode = CREATE_ALWAYS;
+		access = GENERIC_WRITE;
+	}
+	else
+	{
+		errno = EINVAL;
+		return NULL;
+	}
+
+	return CreateFileW(wpath, access, 0, NULL, open_mode, FILE_ATTRIBUTE_NORMAL, NULL);
+}
+
+int win32_fclose(void *stream)
+{
+	CloseHandle(stream);
+	return 0;
+}
+
+int win32_fseek(FILE *stream, long offset, int whence)
+{
+	LARGE_INTEGER li_offset;
+	li_offset.QuadPart = offset;
+	SetFilePointerEx(stream, li_offset, NULL, whence);
+
+	return 0;
+}
+
+int win32_ftell(FILE *stream)
+{
+	LARGE_INTEGER li_offset = {0};
+	LARGE_INTEGER li_new = {0};
+
+	SetFilePointerEx(stream, li_offset, &li_new, FILE_CURRENT);
+
+	return li_new.QuadPart;
+}
+
+size_t win32_fread(void *ptr, size_t size, size_t nmemb, void *stream)
+{
+	DWORD bytes_read;
+	ReadFile(stream, ptr, (size * nmemb), &bytes_read, NULL);
+
+	/*TODO: error handling */
+
+	return bytes_read;
+}
+
+size_t win32_fwrite(const void *ptr, size_t size, size_t nmemb, void *stream)
+{
+	DWORD bytes_written;
+	WriteFile(stream, ptr, (size * nmemb), &bytes_written, NULL);
+
+	/*TODO: error handling */
+
+	return bytes_written;
+}
+
+int win32_fgetc(void *stream)
+{
+	unsigned char c;
+	win32_fread(&c, 1, 1, stream);
+	return c;
+}
+
+int win32_fputc(int character, void *stream)
+{
+	character = (unsigned char)character;
+	win32_fwrite(&character, 1, 1, stream);
+}
+#endif
 
 int win32_mkdir(const char *path)
 {
