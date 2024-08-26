@@ -45,6 +45,16 @@ char *win32_strchr(const char *s, int c)
 	return *s == c ? (char *)s : NULL;
 }
 
+char win32_strrchr(const char *s, int c)
+{
+	DWORD len = lstrlen(s);
+	c = (unsigned char)c;
+	while(len--)
+		if(s[len] == c)
+			return s + len;
+	return 0;
+}
+
 #else
 #ifdef __GNUC__
 __attribute__((unused))
