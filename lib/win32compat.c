@@ -4,6 +4,7 @@
 #include <direct.h>
 #include <stdio.h>
 #include <errno.h>
+#include <stdarg.h>
 
 #include "win32compat.h"
 
@@ -102,6 +103,24 @@ int win32_fputc(int character, void *stream)
 	win32_fwrite(&character, 1, 1, stream);
 }
 #endif
+
+int win32_xvprintf(const char *format, ...)
+{
+	int i;
+	va_list args;
+	char buf[1024];
+	wchar_t wbuf[2048];
+
+	va_start(args, format);
+	wvsprintfA(buf, format, args);
+	va_end(args);
+
+	i = MultiByteToWideChar(CP_UTF8, 0, buf, -1, wbuf, sizeof(wbuf));
+
+	WriteConsoleW(GetStdHandle(STD_OUTPUT_HANDLE), &wbuf, i, NULL, NULL);
+
+	return 0;
+}
 
 int win32_mkdir(const char *path)
 {
