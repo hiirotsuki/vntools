@@ -8,7 +8,7 @@ static int cp932_to_utf16(unsigned int *r, unsigned char *s)
 	int ret = 0;
 	unsigned int buf;
 
-	if((*s >= 0x81 && *s <= 0x9f) || (*s >= 0xe0 && *s <= 0xef) || (*s >=0xfa && *s <= 0xfc))
+	if((*s >= 0x81 && *s <= 0x9F) || (*s >= 0xE0 && *s <= 0xEF) || (*s >=0xFA && *s <= 0xFC))
 	{
 		buf = *(s++) << 8;
 		buf |= *s;
@@ -28,72 +28,60 @@ static int cp932_to_utf16(unsigned int *r, unsigned char *s)
 	return ret;
 }
 
-static int utf16_to_utf8(char *s, unsigned int *r)
+int utf16_to_utf8(char *s, unsigned int *r)
 {
-	if(*r == (*r & 0x7f))
+	if(*r == (*r & 0x7F))
 	{
-		*s = *r & 0x7f;
+		*s = *r & 0x7F;
 		return 1;
 	}
-	else if(*r == (*r & 0x7ff))
+	else if(*r == (*r & 0x7FF))
 	{
-		*(s++) = 0300 | ((*r >> 6) & 0277);
-		*s = 0200 | (*r&077);
+		*(s++) = 0xC0 | ((*r >> 6) & 0xBF);
+		*s = 0x80 | (*r & 0x3F);
 		return 2;
 	}
-	else if(*r == (*r & 0xffff))
+	else if(*r == (*r & 0xFFFF))
 	{
-		*(s++) = 0340 | ((*r >> 12) & 0337);
-		*(s++) = 0200 | ((*r >> 6) & 077);
-		*s = 0200 | (*r & 077);
+		*(s++) = 0xE0 | ((*r >> 12) & 0xDF);
+		*(s++) = 0x80 | ((*r >> 6) & 0x3F);
+		*s = 0x80 | (*r & 0x3F);
 		return 3;
 	}
-	else if(*r == (*r & 0x10ffff))
+	else if(*r == (*r & 0x10FFFF))
 	{
-		*(s++) = 0360 | ((*r >> 18) & 0357);
-		*(s++) = 0200 | ((*r >> 12) & 077);
-		*(s++) = 0200 | ((*r >> 6) & 077);
-		*s = 0200 | (*r & 077);
+		*(s++) = 0xF0 | ((*r >> 18) & 0xEF);
+		*(s++) = 0x80 | ((*r >> 12) & 0x3F);
+		*(s++) = 0x80 | ((*r >> 6) & 0x3F);
+		*s = 0x80 | (*r & 0x3F);
 		return 4;
 	}
 	else
-	{
 		return -1;
-	}
 }
 
-int cp932_to_utf8(const char *cp932, char **utf8)
+int cp932_to_utf8(unsigned char *cp932, int cp932_len, char **utf8)
 {
-	char buf[4];
+	int wlen;
 	unsigned int r;
-	int slen, ulen, len, i, j;
+	char *addr = *utf8;
 
-	len = strlen(cp932);
-
-	*utf8 = malloc((len * 4) + 1);
-
-	if(!*utf8)
-		return -2;
-
-	i = 0;
-	while(len)
+	while(cp932_len)
 	{
-		slen = cp932_to_utf16(&r, (unsigned char *)cp932);
+		wlen = cp932_to_utf16(&r, cp932);
 
-		if(slen < 0)
-			return -1;
-
-		ulen = utf16_to_utf8(buf, &r);
-
-		cp932 += slen;
-		len -= slen;
-
-		for(j = 0; j < ulen; j++)
+		if(wlen < 0)
 		{
-			(*utf8)[i++] = buf[j];
+			puts("cp932_to_utf8");
+			return -1;
 		}
-	}
-	(*utf8)[i] = '\0';
 
+		*utf8 += utf16_to_utf8(*utf8, &r);
+
+		cp932 += wlen;
+		cp932_len -= wlen;
+	}
+	**utf8 = '\0';
+	*utf8 = addr; /* restore initial position of pointer */
 	return 0;
 }

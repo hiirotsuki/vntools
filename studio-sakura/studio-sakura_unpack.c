@@ -37,9 +37,19 @@ int main(int argc, char *argv[])
 
 	while(count)
 	{
+		int namelen;
 		fread(buf, 1, 256, arc_file);
 
-		cp932_to_utf8((const char *)buf, &filename);
+		namelen = strlen((char *)buf);
+		filename = malloc((namelen * 4) + 1);
+
+		if(!filename)
+		{
+			fprintf(stderr, "Out of memory\n");
+			return 1;
+		}
+
+		cp932_to_utf8(buf, namelen, &filename);
 
 		/* strip compression file extension */
 		c = strrchr(filename, '.');

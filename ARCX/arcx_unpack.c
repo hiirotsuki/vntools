@@ -5,7 +5,10 @@
 #include "readint.h"
 #include "xmkdir.h"
 #include "cp932.h"
+#include "normalize.h"
+#ifdef _WIN32
 #include "win32compat.h"
+#endif
 
 int main(int argc, char *argv[])
 {
@@ -43,9 +46,21 @@ int main(int argc, char *argv[])
 	fprintf(stdout, "extracting %d files\n", count);
 	while(count--)
 	{
+		int namelen;
+		memset(buf, '\0', 128);
 		fread(buf, 128, 1, arcx);
-		if(cp932_to_utf8((char *)buf, &filename) < 0)
-			return 1; /* todo: proper error handling, refactor into caller malloc? */
+		namelen = strlen((char *)buf);
+		filename = malloc((namelen * 4) + 1);
+		if(!filename)
+		{
+			fprintf(stderr, "out of memory\n");
+			return 1;
+		}
+		if(cp932_to_utf8(buf, namelen, &filename) < 0)
+		{
+			fprintf(stderr, "filename encoding error\n");
+			return 1;
+		}
 		offset = read_uint32_le(&buf[100]);
 		size = read_uint32_le(&buf[104]);
 		unpacked_size = read_uint32_le(&buf[108]);
@@ -55,7 +70,7 @@ int main(int argc, char *argv[])
 		fprintf(stdout, "extracting %s\n", filename);
 
 		/* todo: error handling */
-		recursive_mkdir(filename, 0755, '\\');
+		recursive_mkdir(filename, 0755);
 
 		out = fopen(filename, "wb");
 		index = ftell(arcx);

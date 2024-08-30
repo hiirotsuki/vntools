@@ -57,6 +57,8 @@ int main(int argc, char **argv)
 
 	while(index_count)
 	{
+		int namelen;
+
 		if(f == 32)
 		{
 			fread(buf, 1, 44, archive_file);
@@ -72,9 +74,17 @@ int main(int argc, char **argv)
 			entry_offset    = read_uint32_le(&buf[72]);
 		}
 
-		if(cp932_to_utf8((char *)buf, &filename) == -2)
+		namelen = strlen((char *)buf);
+		filename = malloc((namelen * 4) + 1);
+		if(!filename)
 		{
-			fprintf(stderr, "Out of memory");
+			fprintf(stderr, "Out of memory\n");
+			fclose(archive_file);
+			return 1;
+		}
+		if(cp932_to_utf8(buf, namelen, &filename) < 0)
+		{
+			fprintf(stderr, "Filename encoding error\n");
 			fclose(archive_file);
 			return 1;
 		}
