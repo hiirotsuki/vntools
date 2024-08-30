@@ -5,20 +5,23 @@
 #include <sys/stat.h>
 #endif
 
+#include "normalize.h"
 #include "win32compat.h"
 
-int recursive_mkdir(char *filename, int mode, char sep)
+int recursive_mkdir(char *filename, int mode)
 {
 	char *p;
 #ifdef _WIN32
 	(void)mode;
 #endif
 
-	if(strchr(filename, sep))
+	path_normalize(filename);
+
+	if(strchr(filename, SEP))
 	{
 		for(p = filename; *p; p++)
 		{
-			if(*p == sep)
+			if(*p == SEP)
 			{
 				*p = '\0';
 
@@ -27,7 +30,7 @@ int recursive_mkdir(char *filename, int mode, char sep)
 					if(errno != EEXIST)
 						return 1;
 				}
-				*p = sep;
+				*p = SEP;
 			}
 		}
 	}
