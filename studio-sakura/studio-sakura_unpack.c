@@ -49,7 +49,11 @@ int main(int argc, char *argv[])
 			return 1;
 		}
 
-		cp932_to_utf8(buf, namelen, &filename);
+		if(cp932_to_utf8(buf, namelen, &filename) < 0)
+		{
+			fprintf(stderr, "filename encoding error\n");
+			return 1;
+		}
 
 		/* strip compression file extension */
 		c = strrchr(filename, '.');
