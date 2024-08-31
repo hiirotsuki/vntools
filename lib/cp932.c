@@ -71,10 +71,7 @@ int cp932_to_utf8(unsigned char *cp932, int cp932_len, char **utf8)
 		wlen = cp932_to_utf16(&r, cp932);
 
 		if(wlen < 0)
-		{
-			puts("cp932_to_utf8");
 			return -1;
-		}
 
 		*utf8 += utf16_to_utf8(*utf8, &r);
 
