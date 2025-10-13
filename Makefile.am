@@ -17,8 +17,13 @@ bin_PROGRAMS = \
 
 opk_pack_SOURCES = cromwell/opk_pack.c
 opk_unpack_SOURCES = cromwell/opk_unpack.c
+opk_unpack_CFLAGS = $(OPENMP_CFLAGS)
+opk_unpack_LDFLAGS = $(OPENMP_CFLAGS)
+opk_unpack_LDADD = lib/libcommon.a
 cromwell_pak_unpack_SOURCES = cromwell/pak_unpack.c
-cromwell_pak_unpack_LDADD = -lz
+cromwell_pak_unpack_CFLAGS = $(OPENMP_CFLAGS)
+cromwell_pak_unpack_LDFLAGS = $(OPENMP_CFLAGS)
+cromwell_pak_unpack_LDADD = -lz lib/libcommon.a
 
 nekopunch_unpack_SOURCES = nekopunch/nekopunch_unpack.c
 nekopunch_unpack_LDADD = lib/libcommon.a
@@ -33,6 +38,7 @@ cgd2bmp_SOURCES = carriere/cgd2bmp.c
 
 ggp_decrypt_SOURCES = ikura/ggp_decrypt.c
 sm2mpx10_unpack_SOURCES = ikura/sm2mpx10_unpack.c
+sm2mpx10_unpack_LDADD = lib/libcommon.a
 sm2mpx10_pack_SOURCES = ikura/sm2mpx10_pack.c
 
 ifl_unpack_SOURCES = silky/ifl_unpack.c
