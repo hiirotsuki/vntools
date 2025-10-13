@@ -23,6 +23,7 @@ studio-sakura/studio-sakura_unpack.exe
 succubus/succubus_arc_unpack
 succubus/succubus_arc_unpack.exe
 *.o
+*.a
 
 #autotools
 Makefile
