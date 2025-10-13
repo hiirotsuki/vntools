@@ -36,6 +36,9 @@ sm2mpx10_unpack_SOURCES = ikura/sm2mpx10_unpack.c
 sm2mpx10_pack_SOURCES = ikura/sm2mpx10_pack.c
 
 ifl_unpack_SOURCES = silky/ifl_unpack.c
+ifl_unpack_LDADD = lib/libcommon.a
+ifl_unpack_CFLAGS = $(OPENMP_CFLAGS)
+ifl_unpack_LDFLAGS = $(OPENMP_CFLAGS)
 ifl_pack_SOURCES = silky/ifl_pack.c
 
 succubus_arc_unpack_SOURCES = succubus/succubus_arc_unpack.c
