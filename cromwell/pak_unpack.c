@@ -20,7 +20,7 @@ struct pak_entry
 int main(int argc, char *argv[])
 {
 	char *p;
-	FILE *pak;
+	FILE *pak, *lst;
 	int i, audio = 0;
 	const char *magic = "Graphic PackData";
 	unsigned long count, offset, next_offset;
@@ -28,6 +28,11 @@ int main(int argc, char *argv[])
 
 	if(argc < 2)
 		return 1;
+
+	if(argc >= 3)
+		lst = fopen(argv[2], "wb");
+	else
+		lst = fopen("list.txt", "wb");
 
 	pak = fopen(argv[1], "rb");
 
@@ -89,8 +94,11 @@ int main(int argc, char *argv[])
 		}
 
 		entries[i].compressed_size = next_offset - offset;
+
+		fprintf(lst, "%s\n", entries[i].filename);
 	}
 
+	fclose(lst);
 	fclose(pak);
 
 	#pragma omp parallel for
