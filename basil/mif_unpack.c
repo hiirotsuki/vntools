@@ -3,14 +3,18 @@
 #include <errno.h>
 
 #include "readint.h"
+#include "xprintf.h"
+
+#define BUFFER_SIZE 8192
 
 int main(int argc, char *argv[])
 {
 	FILE *mif, *out;
 	long arc_offset;
 	char filename[17];
-	unsigned char buf[24];
+	unsigned char header_buf[24];
 	int count, entry_offset, entry_size;
+	unsigned long bytes_read;
 
 	if(argc < 2)
 	{
@@ -26,26 +30,28 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	if(fread(buf, 1, 8, mif) != 8)
+	if(fread(header_buf, 1, 8, mif) != 8)
 	{
 		fprintf(stderr, "unexpected end of archive\n");
 		return 1;
 	}
 
-	if(memcmp(buf, "MIF\0", 4))
+	if(memcmp(header_buf, "MIF\0", 4))
 	{
 		fprintf(stderr, "expected MIF archive\n");
 		return 1;
 	}
 
-	count = read_uint32_le(&buf[4]);
+	count = read_uint32_le(&header_buf[4]);
 	while(count--)
 	{
-		fread(buf, 1, 24, mif);
+		unsigned char buffer[BUFFER_SIZE];
+
+		fread(header_buf, 1, 24, mif);
 		memset(filename, '\0', 17); /* C string? not sure, lets be conservative */
-		memcpy(filename, buf, 16);
-		entry_offset = read_uint32_le(&buf[16]);
-		entry_size = read_uint32_le(&buf[20]);
+		memcpy(filename, header_buf, 16);
+		entry_offset = read_uint32_le(&header_buf[16]);
+		entry_size = read_uint32_le(&header_buf[20]);
 
 		fprintf(stdout, "extracting %s\n", filename);
 
@@ -60,8 +66,12 @@ int main(int argc, char *argv[])
 		arc_offset = ftell(mif);
 		fseek(mif, entry_offset, SEEK_SET);
 
-		while(entry_size--)
-			fputc(fgetc(mif), out);
+		while(entry_size > 0)
+		{
+			bytes_read = fread(buffer, 1, entry_size < BUFFER_SIZE ? entry_size : BUFFER_SIZE, mif);
+			fwrite(buffer, 1, bytes_read, out);
+			entry_size -= bytes_read;
+		}
 
 		fseek(mif, arc_offset, SEEK_SET);
 		fclose(out);
