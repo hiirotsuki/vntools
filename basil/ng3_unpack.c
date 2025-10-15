@@ -83,19 +83,19 @@ int main(int argc, char *argv[])
 	/* BMP header, enough for 24-bit BMPs */
 	fwrite("BM", 1, 2, bmp);
 	fwrite_uint32_le(54 + pixels, bmp);
-	fwrite("\x00\x00\x00\0x00", 4, 1, bmp);
+	fwrite("\x00\x00\x00\x00", 4, 1, bmp);
 	fwrite_uint32_le(54, bmp);
 	fwrite_uint32_le(40, bmp);
 	fwrite_uint32_le(width, bmp);
 	fwrite_uint32_le(height, bmp);
 	fwrite("\x01\x00", 2, 1, bmp);
 	fwrite("\x18\x00", 2, 1, bmp);
-	fwrite("\x00\x00\x00\0x00", 4, 1, bmp);
+	fwrite("\x00\x00\x00\x00", 4, 1, bmp);
 	fwrite_uint32_le(pixels, bmp);
-	fwrite("\x00\x00\x00\0x00", 4, 1, bmp); /* unused */
-	fwrite("\x00\x00\x00\0x00", 4, 1, bmp); /* unused */
-	fwrite("\x00\x00\x00\0x00", 4, 1, bmp);
-	fwrite("\x00\x00\x00\0x00", 4, 1, bmp);
+	fwrite("\x00\x00\x00\x00", 4, 1, bmp); /* unused */
+	fwrite("\x00\x00\x00\x00", 4, 1, bmp); /* unused */
+	fwrite("\x00\x00\x00\x00", 4, 1, bmp);
+	fwrite("\x00\x00\x00\x00", 4, 1, bmp);
 
 	written = 0;
 	while(1)
