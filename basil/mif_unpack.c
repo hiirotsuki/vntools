@@ -1,81 +1,100 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #include "readint.h"
 #include "xprintf.h"
 
 #define BUFFER_SIZE 8192
 
+#define FILENAME_ENTRY_SIZE 17
+
+struct mif_entry
+{
+	unsigned long offset;
+	unsigned long size;
+	char filename[FILENAME_ENTRY_SIZE];
+};
+
 int main(int argc, char *argv[])
 {
-	FILE *mif, *out;
-	long arc_offset;
-	char filename[17];
+	FILE *mif;
 	unsigned char header_buf[24];
-	int count, entry_offset, entry_size;
-	unsigned long bytes_read;
+	int i, count;
 
 	if(argc < 2)
-	{
-		fprintf(stderr, "usage: mif_unpack <archive.MIF>\n");
-		return 1;
-	}
+		err_fprintf(stderr, "usage: mif_unpack <archive.MIF>\n");
 
 	mif = fopen(argv[1], "rb");
 
 	if(mif == NULL)
-	{
-		fprintf(stderr, "failed to open %s: %s\n", argv[1], strerror(errno));
-		return 1;
-	}
+		err_fprintf(stderr, "failed to open %s: %s\n", argv[1], strerror(errno));
 
 	if(fread(header_buf, 1, 8, mif) != 8)
-	{
-		fprintf(stderr, "unexpected end of archive\n");
-		return 1;
-	}
+		err_fprintf(stderr, "unexpected end of archive\n");
 
 	if(memcmp(header_buf, "MIF\0", 4))
-	{
-		fprintf(stderr, "expected MIF archive\n");
-		return 1;
-	}
+		err_fprintf(stderr, "expected MIF archive\n");
 
 	count = read_uint32_le(&header_buf[4]);
-	while(count--)
+
+	struct mif_entry *entries = malloc(count * sizeof(struct mif_entry));
+
+	if(entries == NULL)
+		err_fprintf(stderr, "Out of memory\n");
+
+	for(i = 0; i < count; i++)
 	{
-		unsigned char buffer[BUFFER_SIZE];
-
 		fread(header_buf, 1, 24, mif);
-		memset(filename, '\0', 17); /* C string? not sure, lets be conservative */
-		memcpy(filename, header_buf, 16);
-		entry_offset = read_uint32_le(&header_buf[16]);
-		entry_size = read_uint32_le(&header_buf[20]);
+		memset(entries[i].filename, '\0', FILENAME_ENTRY_SIZE); /* C string? not sure, lets be conservative */
+		memcpy(entries[i].filename, header_buf, 16);
+		entries[i].offset = read_uint32_le(&header_buf[16]);
+		entries[i].size = read_uint32_le(&header_buf[20]);
+	}
 
-		fprintf(stdout, "extracting %s\n", filename);
+	fclose(mif);
 
-		out = fopen(filename, "wb");
+	#pragma omp parallel for
+	for(i = 0; i < count; i++)
+	{
+		FILE *out, *mif_thread = fopen(argv[1], "rb");
+		unsigned char buffer[BUFFER_SIZE];
+		unsigned long bytes_read, remaining;
+
+		if(mif_thread == NULL)
+		{
+			fprintf(stderr, "Failed to open %s for thread %d\n", argv[1], i);
+			continue;
+		}
+
+		fprintf(stdout, "extracting %s\n", entries[i].filename);
+
+		out = fopen(entries[i].filename, "wb");
 
 		if(out == NULL)
 		{
-			fprintf(stderr, "failed to open %s for writing: %s\n", filename, strerror(errno));
-			return 1;
+			fprintf(stderr, "failed to open %s for writing: %s\n", entries[i].filename, strerror(errno));
+			fclose(mif_thread);
+			continue;
 		}
 
-		arc_offset = ftell(mif);
-		fseek(mif, entry_offset, SEEK_SET);
+		fseek(mif_thread, entries[i].offset, SEEK_SET);
 
-		while(entry_size > 0)
+		remaining = entries[i].size;
+		while(remaining > 0)
 		{
-			bytes_read = fread(buffer, 1, entry_size < BUFFER_SIZE ? entry_size : BUFFER_SIZE, mif);
+			bytes_read = fread(buffer, 1, remaining < BUFFER_SIZE ? remaining : BUFFER_SIZE, mif_thread);
 			fwrite(buffer, 1, bytes_read, out);
-			entry_size -= bytes_read;
+			remaining -= bytes_read;
 		}
 
-		fseek(mif, arc_offset, SEEK_SET);
+		fclose(mif_thread);
 		fclose(out);
 	}
 
+	free(entries);
 	return 0;
 }
