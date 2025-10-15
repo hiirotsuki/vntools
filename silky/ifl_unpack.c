@@ -7,6 +7,7 @@
 
 #include "readint.h"
 #include "xprintf.h"
+#include "lzss.h"
 
 struct ifl_entry
 {
@@ -24,26 +25,17 @@ int main(int argc, char *argv[])
 	unsigned char ifl_magic[] = {"\x49\x46\x4c\x53"};
 
 	if(argc < 2)
-	{
-		fprintf(stderr, "Usage: ifl_unpack <*.IFL>\n");
-		return 1;
-	}
+		err_fprintf(stderr, "Usage: ifl_unpack <*.IFL>\n");
 
 	ifl = fopen(argv[1], "rb");
 
-	if(!ifl)
-	{
-		fprintf(stderr, "could open file %s\n", argv[1]);
-		return 1;
-	}
+	if(ifl == NULL)
+		err_fprintf(stderr, "could open file %s\n", argv[1]);
 
 	fread(header_buf, 1, 12, ifl);
 
 	if(memcmp(header_buf, ifl_magic, 4))
-	{
-		fprintf(stderr, "%s is not an IFL archive\n", argv[1]);
-		return 1;
-	}
+		err_fprintf(stderr, "%s is not an IFL archive\n", argv[1]);
 
 	lst = fopen("list.txt", "wb");
 
@@ -79,9 +71,9 @@ int main(int argc, char *argv[])
 	for(i = 0; i < count; i++)
 	{
 		char *p;
+		int compressed = 0;
 		unsigned char buf[24];
-		FILE *out;
-		FILE *ifl_thread = fopen(argv[1], "rb");
+		FILE *out, *ifl_thread = fopen(argv[1], "rb");
 		unsigned long entry_size, entry_uncomp_size;
 
 		if(!ifl_thread)
@@ -95,89 +87,74 @@ int main(int argc, char *argv[])
 		fseek(ifl_thread, entries[i].offset, SEEK_SET);
 
 		p = strrchr(entries[i].filename, '.');
+
 		if(p)
-		{
 			if(!strcmp(p, ".grd"))
+				compressed = 1;
+
+		if(compressed)
+		{
+			char local_filename[17];
+			unsigned char *compressed_data, *uncompressed_data;
+			unsigned long compressed_size, uncompressed_size;
+
+			strcpy(local_filename, entries[i].filename);
+			p = strrchr(local_filename, '.');
+
+			fprintf(stdout, "Decompressing and extracting %s\n", entries[i].filename);
+
+			p[1] = 'b';
+			p[2] = 'm';
+			p[3] = 'p';
+
+			/* TODO: ??? 12 bytes, 4 are the real size, the other 8 are...? */
+			fread(buf, 1, 12, ifl_thread);
+			uncompressed_size = read_uint32_le(&buf[4]);
+
+			compressed_size = entry_size - 12;
+
+			compressed_data = malloc(compressed_size);
+			uncompressed_data = malloc(uncompressed_size);
+
+			if(!compressed_data || !uncompressed_data)
 			{
-				char local_filename[17];
-				strcpy(local_filename, entries[i].filename);
-				p = strrchr(local_filename, '.');
-
-				unsigned char window[4096] = {0x20};
-				unsigned int lzss_pos = 4078;
-				int cbit, control, match_pos, match_len, done = 0;
-
-				fprintf(stdout, "Decompressing and extracting %s\n", entries[i].filename);
-
-				p[1] = 'b';
-				p[2] = 'm';
-				p[3] = 'p';
-
-				out = fopen(local_filename, "wb");
-				if(!out)
-				{
-					fprintf(stderr, "Failed to create %s\n", local_filename);
-					fclose(ifl_thread);
-					continue;
-				}
-
-				fread(buf, 1, 12, ifl_thread);
-				entry_uncomp_size = read_uint32_le(&buf[4]);
-
-				while(1)
-				{
-					if(ftell(out) == (long)entry_uncomp_size || done == 1)
-						break;
-
-					control = fgetc(ifl_thread);
-					for(cbit = 0x01; cbit & 0xff; cbit <<= 1)
-					{
-						if(done)
-							break;
-						if(control & cbit)
-						{
-							fputc((window[lzss_pos++] = (unsigned char)fgetc(ifl_thread)), out);
-							lzss_pos &= 4095;
-						}
-						else
-						{
-							match_pos = fgetc(ifl_thread);
-							match_len = fgetc(ifl_thread);
-							match_pos |= (match_len & 0xf0) << 4;
-							match_len = (match_len & 0x0f) + 3;
-							while(match_len--)
-							{
-								if(ftell(out) == (long)entry_uncomp_size)
-								{
-									done = 1;
-									break;
-								}
-								fputc((window[lzss_pos++] = window[match_pos++]), out);
-								lzss_pos &= 4095;
-								match_pos &= 4095;
-							}
-						}
-					}
-				}
+				fprintf(stderr, "Failed to allocate memory for %s\n", entries[i].filename);
+				free(compressed_data);
+				free(uncompressed_data);
+				fclose(ifl_thread);
+				continue;
 			}
-			else
+
+			fread(compressed_data, 1, compressed_size, ifl_thread);
+
+			if(lzss_decompress(uncompressed_data, uncompressed_size, compressed_data, compressed_size) != 0)
 			{
-				out = fopen(entries[i].filename, "wb");
-				if(!out)
-				{
-					fprintf(stderr, "Failed to create %s\n", entries[i].filename);
-					fclose(ifl_thread);
-					continue;
-				}
-				fprintf(stdout, "extracting %s\n", entries[i].filename);
-				while(entry_size--)
-					fputc(fgetc(ifl_thread), out);
+				fprintf(stderr, "Failed to decompress %s\n", entries[i].filename);
+				free(compressed_data);
+				free(uncompressed_data);
+				fclose(ifl_thread);
+				continue;
 			}
+
+			out = fopen(local_filename, "wb");
+			if(out == NULL)
+			{
+				fprintf(stderr, "Failed to create %s\n", local_filename);
+				free(compressed_data);
+				free(uncompressed_data);
+				fclose(ifl_thread);
+				continue;
+			}
+
+			fwrite(uncompressed_data, 1, uncompressed_size, out);
+
+			free(compressed_data);
+			free(uncompressed_data);
 		}
 		else
 		{
 			out = fopen(entries[i].filename, "wb");
-			if(!out)
+			if(out == NULL)
 			{
 				fprintf(stderr, "Failed to create %s\n", entries[i].filename);
 				fclose(ifl_thread);
