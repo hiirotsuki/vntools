@@ -1,6 +1,7 @@
 bin_PROGRAMS = \
 	opk_pack \
 	opk_unpack \
+	cromwell_pak_pack \
 	cromwell_pak_unpack \
 	nekopunch_unpack \
 	arcx_unpack \
@@ -20,6 +21,8 @@ opk_unpack_SOURCES = cromwell/opk_unpack.c
 opk_unpack_CFLAGS = $(OPENMP_CFLAGS)
 opk_unpack_LDFLAGS = $(OPENMP_CFLAGS)
 opk_unpack_LDADD = lib/libcommon.a
+cromwell_pak_pack_SOURCES = cromwell/pak_pack.c
+cromwell_pak_pack_LDADD = -lz lib/libcommon.a
 cromwell_pak_unpack_SOURCES = cromwell/pak_unpack.c
 cromwell_pak_unpack_CFLAGS = $(OPENMP_CFLAGS)
 cromwell_pak_unpack_LDFLAGS = $(OPENMP_CFLAGS)
@@ -29,9 +32,12 @@ nekopunch_unpack_SOURCES = nekopunch/nekopunch_unpack.c
 nekopunch_unpack_LDADD = lib/libcommon.a
 
 arcx_unpack_SOURCES = ARCX/arcx_unpack.c
+arcx_unpack_CFLAGS = $(OPENMP_CFLAGS)
+arcx_unpack_LDFLAGS = $(OPENMP_CFLAGS)
 arcx_unpack_LDADD = lib/libcommon.a
 
 mif_unpack_SOURCES = basil/mif_unpack.c
+mif_unpack_LDADD = lib/libcommon.a
 ng3_unpack_SOURCES = basil/ng3_unpack.c
 
 cgd2bmp_SOURCES = carriere/cgd2bmp.c
