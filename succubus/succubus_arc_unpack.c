@@ -4,6 +4,8 @@
 
 #include "readint.h"
 
+#define BUFFER_SIZE 8192
+
 int main(int argc, char *argv[])
 {
 	long arc_pos;
@@ -42,6 +44,9 @@ int main(int argc, char *argv[])
 
 	while(num--)
 	{
+		unsigned char buffer[BUFFER_SIZE];
+		unsigned long bytes_read, remaining;
+
 		memset(filename, '\0', sizeof(filename));
 		fseek(arc_file, arc_pos, SEEK_SET);
 		fread(buf, 1, 24, arc_file);
@@ -57,8 +62,14 @@ int main(int argc, char *argv[])
 
 		entry_size = read_uint32_le(&buf[16]);
 		fseek(arc_file, read_uint32_le(&buf[20]), SEEK_SET);
-		while(entry_size--)
-			fputc(fgetc(arc_file), out_file);
+
+		remaining = entry_size;
+		while(remaining > 0)
+		{
+			bytes_read = fread(buffer, 1, remaining < BUFFER_SIZE ? remaining : BUFFER_SIZE, arc_file);
+			fwrite(buffer, 1, bytes_read, out_file);
+			remaining -= bytes_read;
+		}
 
 		fclose(out_file);
 		fseek(arc_file, arc_pos, SEEK_SET);
