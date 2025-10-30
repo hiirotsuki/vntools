@@ -12,6 +12,7 @@
 #include "normalize.h"
 #include "lzss.h"
 #include "xprintf.h"
+#include "xread.h"
 #ifdef _WIN32
 #include "win32compat.h"
 #endif
@@ -106,8 +107,9 @@ int main(int argc, char *argv[])
 	for(i = 0; i < count; i++)
 	{
 		FILE *arcx_thread, *out;
+		unsigned char buffer[BUFFER_SIZE];
+		unsigned long bytes_read, remaining;
 		unsigned char *compressed_data, *uncompressed_data;
-		long remaining;
 
 		arcx_thread = fopen(argv[1], "rb");
 		if(!arcx_thread)
@@ -133,8 +135,12 @@ int main(int argc, char *argv[])
 		if(!entries[i].is_packed)
 		{
 			remaining = entries[i].size;
-			while(remaining--)
-				fputc(fgetc(arcx_thread), out);
+			while(remaining > 0)
+			{
+				bytes_read = xread(buffer, remaining, arcx_thread);
+				fwrite(buffer, 1, bytes_read, out);
+				remaining -= bytes_read;
+			}
 		}
 		else
 		{
