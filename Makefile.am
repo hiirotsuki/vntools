@@ -9,8 +9,7 @@ bin_PROGRAMS = \
 	ng3_unpack \
 	cgd2bmp \
 	ggp_decrypt \
-	sm2mpx10_unpack \
-	sm2mpx10_pack \
+	sm2mpx10 \
 	ifl_unpack \
 	ifl_pack \
 	succubus_arc_unpack \
@@ -43,9 +42,10 @@ ng3_unpack_SOURCES = basil/ng3_unpack.c
 cgd2bmp_SOURCES = carriere/cgd2bmp.c
 
 ggp_decrypt_SOURCES = ikura/ggp_decrypt.c
-sm2mpx10_unpack_SOURCES = ikura/sm2mpx10_unpack.c
-sm2mpx10_unpack_LDADD = lib/libcommon.a
-sm2mpx10_pack_SOURCES = ikura/sm2mpx10_pack.c
+sm2mpx10_SOURCES = ikura/sm2mpx10.c
+sm2mpx10_CFLAGS = $(OPENMP_CFLAGS)
+sm2mpx10_LDFLAGS = $(OPENMP_CFLAGS)
+sm2mpx10_LDADD = lib/libcommon.a
 
 ifl_unpack_SOURCES = silky/ifl_unpack.c
 ifl_unpack_LDADD = lib/libcommon.a
