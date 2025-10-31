@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "readint.h"
+#include "xread.h"
 
 #define BUFFER_SIZE 8192
 
@@ -66,7 +67,7 @@ int main(int argc, char *argv[])
 		remaining = entry_size;
 		while(remaining > 0)
 		{
-			bytes_read = fread(buffer, 1, remaining < BUFFER_SIZE ? remaining : BUFFER_SIZE, arc_file);
+			bytes_read = xread(buffer, remaining, arc_file);
 			fwrite(buffer, 1, bytes_read, out_file);
 			remaining -= bytes_read;
 		}
