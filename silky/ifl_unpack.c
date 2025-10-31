@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
 		int compressed = 0;
 		unsigned char buf[24];
 		FILE *out, *ifl_thread = fopen(argv[1], "rb");
-		unsigned long entry_size, entry_uncomp_size;
+		unsigned long entry_size;
 
 		if(!ifl_thread)
 		{
