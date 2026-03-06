@@ -2,6 +2,10 @@
 #define WIN32COMPAT_H
 
 #ifdef _WIN32
+
+/* seriously... */
+#define _CRT_SECURE_NO_WARNINGS
+
 #ifndef NOFILE
 #undef SEEK_SET
 #undef SEEK_CUR
