@@ -58,6 +58,6 @@ succubus_arc_unpack_SOURCES = succubus/succubus_arc_unpack.c
 studio_sakura_unpack_SOURCES = studio-sakura/studio-sakura_unpack.c
 studio_sakura_unpack_LDADD = lib/libcommon.a
 
-AM_CPPFLAGS = -I$(top_srcdir)/lib
+AM_CPPFLAGS = -I$(top_srcdir)/lib -I$(top_builddir)
 
 SUBDIRS = lib
