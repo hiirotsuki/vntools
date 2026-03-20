@@ -24,6 +24,8 @@ succubus/succubus_arc_unpack
 succubus/succubus_arc_unpack.exe
 *.o
 *.a
+*.obj
+*.exe
 
 #autotools
 Makefile
