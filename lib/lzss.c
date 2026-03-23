@@ -76,6 +76,8 @@ int lzss_decompress(unsigned char *output, unsigned long output_size, const unsi
 	}
 
 	lzss_window_free(window);
+	if(output_pos != output_size)
+		return -2;
 	return 0;
 }
 

@@ -3,6 +3,7 @@
 
 unsigned char *lzss_window_init(int window_size, const char fill_byte);
 void lzss_window_free(void *ptr);
+/* Returns 0 on success, -1 on allocation failure, -2 if output buffer not fully filled. */
 int lzss_decompress(unsigned char *output, unsigned long output_size, const unsigned char *input, unsigned long input_size);
 unsigned long lzss_compress_bound(unsigned long input_size);
 int lzss_compress(unsigned char *output, unsigned long output_size, const unsigned char *input, unsigned long input_size);
