@@ -1,7 +1,5 @@
 bin_PROGRAMS = \
-	opk_pack \
-	opk_unpack \
-	cromwell_pak_pack \
+	opk \
 	cromwell_pak_unpack \
 	nekopunch_unpack \
 	arcx_unpack \
@@ -15,13 +13,12 @@ bin_PROGRAMS = \
 	succubus_arc_unpack \
 	studio-sakura_unpack
 
-opk_pack_SOURCES = cromwell/opk_pack.c
-opk_unpack_SOURCES = cromwell/opk_unpack.c
-opk_unpack_CFLAGS = $(OPENMP_CFLAGS)
-opk_unpack_LDFLAGS = $(OPENMP_CFLAGS)
-opk_unpack_LDADD = lib/libcommon.a
-cromwell_pak_pack_SOURCES = cromwell/pak_pack.c
-cromwell_pak_pack_LDADD = -lz lib/libcommon.a
+opk_SOURCES = cromwell/opk.c
+opk_CFLAGS = $(OPENMP_CFLAGS)
+opk_LDFLAGS = $(OPENMP_CFLAGS)
+opk_LDADD = lib/libcommon.a
+#cromwell_pak_pack_SOURCES = cromwell/pak_pack.c
+#cromwell_pak_pack_LDADD = -lz lib/libcommon.a
 cromwell_pak_unpack_SOURCES = cromwell/pak_unpack.c
 cromwell_pak_unpack_CFLAGS = $(OPENMP_CFLAGS)
 cromwell_pak_unpack_LDFLAGS = $(OPENMP_CFLAGS)
