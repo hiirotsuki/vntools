@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
 	/* IFL magic */
 	fwrite(magic, 1, 4, ifl);
 
+	count = 0;
 	while(1)
 	{
 		memset(filename, '\0', 18);
